@@ -312,7 +312,7 @@ html, body {
     <div class="hbTitle">⚔️ <b>Trận chiến anh hùng</b><span id="hbStatus">Chuẩn bị…</span></div>
     <div id="hbRows"></div>
     <div id="hbLog"></div>
-    <div class="hbCredit">Batman: "BATMAN LOWPOLY" — 3D Model Dump (CC-BY 4.0) · Superman &amp; GL: mô hình dựng thủ công</div>
+    <div class="hbCredit">Batman: "BATMAN LOWPOLY" — 3D Model Dump (CC-BY 4.0) · Superman, GL &amp; Wonder Woman: mô hình dựng thủ công</div>
   </div>
 
   <div id="panel">
@@ -5500,11 +5500,24 @@ function hbDrawLantern(x) {
   x.beginPath(); x.moveTo(64, 142); x.lineTo(192, 142); x.stroke();
   x.beginPath(); x.moveTo(128, 98); x.lineTo(128, 164); x.stroke();
 }
+function hbDrawWonderWoman(x) {
+  /* huy hiệu đại bàng vàng / chữ W cách điệu của Wonder Woman */
+  x.fillStyle = '#f5c542';
+  x.strokeStyle = '#b8860b';
+  x.lineWidth = 5;
+  hbPoly(x, [[28, 78], [92, 78], [112, 128], [128, 92], [144, 128], [164, 78], [228, 78],
+             [188, 178], [156, 138], [128, 190], [100, 138], [68, 178]]); x.fill(); x.stroke();
+  x.fillStyle = '#ffe98a';
+  hbPoly(x, [[52, 92], [100, 92], [114, 124], [128, 102], [142, 124], [156, 92], [204, 92],
+             [178, 158], [152, 128], [128, 168], [104, 128], [78, 158]]); x.fill();
+  x.fillStyle = '#f5c542';
+  x.beginPath(); x.moveTo(20, 62); x.lineTo(236, 62); x.lineTo(222, 74); x.lineTo(34, 74); x.closePath(); x.fill();
+}
 function hbEmblemTex(id) {
   const c = document.createElement('canvas');
   c.width = c.height = 256;
   const x = c.getContext('2d');
-  if (id === 'superman') hbDrawSuperman(x); else hbDrawLantern(x);
+  if (id === 'superman') hbDrawSuperman(x); else if (id === 'wonderwoman') hbDrawWonderWoman(x); else hbDrawLantern(x);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = 4;
@@ -5535,6 +5548,12 @@ const HB_DEF = {
            hair: 0x402d1c },
     capeW: 0, capeLen: 0, capeX: 1, headTilt: [-0.02, 0, 0],
   },
+  wonderwoman: {
+    name: 'Wonder Woman', colorCss: '#38bdf8',
+    pal: { torso: 0xc1272d, limb: 0xf0c29a, glove: 0xf0c29a, boot: 0xc1272d, belt: 0xf5c542,
+           hair: 0x1a1210, clasp: 0xf5c542 },
+    capeW: 0, capeLen: 0, capeX: 1, headTilt: [0, 0, 0],
+  },
   batman: { name: 'Batman', colorCss: '#e8b62a' },
   batmanFallback: {
     name: 'Batman (tạm)', colorCss: '#e8b62a',
@@ -5558,6 +5577,12 @@ const HB_FLY = {
     hipL: [0, 0, 0.02], kneeL: [0, 0, 0], footL: [1.50, 0, 0],
     hipR: [0, 0, -0.02], kneeR: [0, 0, 0], footR: [1.50, 0, 0],
   },
+  wonderwoman: {
+    head: [-1.42, 0, 0], spine: [-0.12, 0, 0],
+    shL: [-0.08, 0, -0.10], elL: [-0.12, 0, 0], shR: [-3.02, 0, 0.06], elR: [-0.06, 0, 0],
+    hipL: [0, 0, 0.02], kneeL: [0, 0, 0], footL: [1.50, 0, 0],
+    hipR: [0, 0, -0.02], kneeR: [0, 0, 0], footR: [1.50, 0, 0],
+  },
   batman: {
     head: [-1.42, 0, 0], spine: [-0.12, 0, 0],
     shL: [-0.10, 0, -0.10], elL: [-0.12, 0, 0], shR: [-3.02, 0, 0.06], elR: [-0.06, 0, 0],
@@ -5575,7 +5600,29 @@ function hbDressHead(id, headG, mat) {
   const hair = hbPart(new THREE.SphereGeometry(0.245, 28, 18, 0, Math.PI * 2, 0, 1.8),
     mat.hair, 0, 0.27, -0.022, headG);
   hair.rotation.x = -0.20;
-  if (id === 'gl') {
+  if (id === 'wonderwoman') {
+    /* mắt + môi */
+    const eyeM = new THREE.MeshStandardMaterial({ color: 0x23242a, roughness: 0.4 });
+    hbPart(new THREE.SphereGeometry(0.034, 12, 10), eyeM, -0.085, 0.26, 0.222, headG);
+    hbPart(new THREE.SphereGeometry(0.034, 12, 10), eyeM, 0.085, 0.26, 0.222, headG);
+    const lip = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.016, 0.012),
+      new THREE.MeshStandardMaterial({ color: 0xb03030, roughness: 0.5 }));
+    lip.position.set(0, 0.15, 0.224); headG.add(lip);
+    /* tóc dài đen xõa sau lưng */
+    const backHair = hbPart(new THREE.BoxGeometry(0.42, 0.62, 0.14), mat.hair, 0, -0.02, -0.17, headG);
+    backHair.rotation.x = 0.08;
+    hbPart(new THREE.BoxGeometry(0.10, 0.44, 0.10), mat.hair, -0.235, 0.02, -0.02, headG);
+    hbPart(new THREE.BoxGeometry(0.10, 0.44, 0.10), mat.hair, 0.235, 0.02, -0.02, headG);
+    /* vương miện vàng với ngôi sao đỏ */
+    const gold = new THREE.MeshStandardMaterial({ color: 0xf5c542, metalness: 0.75, roughness: 0.28 });
+    const band = hbPart(new THREE.CylinderGeometry(0.252, 0.252, 0.09, 24, 1, true, -0.9, 1.8), gold, 0, 0.335, 0.01, headG);
+    band.rotation.y = Math.PI / 2;
+    const star = hbPart(new THREE.SphereGeometry(0.045, 5, 4),
+      new THREE.MeshStandardMaterial({ color: 0xd92626, roughness: 0.4 }), 0, 0.335, 0.245, headG);
+    star.scale.set(1, 1, 0.45);
+    const tip = hbPart(new THREE.ConeGeometry(0.05, 0.11, 4), gold, 0, 0.42, 0.235, headG);
+    tip.rotation.x = 0.25;
+  } else if (id === 'gl') {
     hbPart(new THREE.BoxGeometry(0.33, 0.12, 0.07), std(0x111318, { roughness: 0.5 }), 0, 0.27, 0.185, headG);
     const wm = new THREE.MeshBasicMaterial({ color: 0xf5f8ff });
     const g1 = new THREE.Mesh(new THREE.SphereGeometry(0.033, 12, 10), wm);
@@ -5597,6 +5644,50 @@ function hbDressHead(id, headG, mat) {
 
 function hbDressExtras(id, hero, mat) {
   hero.extras = {};
+  if (id === 'wonderwoman') {
+    /* vòng tay bạc (Bracelets of Submission) ở hai cổ tay */
+    const silver = new THREE.MeshStandardMaterial({ color: 0xd7dde6, metalness: 0.85, roughness: 0.25 });
+    ['elL', 'elR'].forEach((jn) => {
+      const el = hero.joints[jn];
+      if (!el) return;
+      const cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.125, 0.118, 0.17, 16), silver);
+      cuff.position.set(0, -0.30, 0); cuff.castShadow = true;
+      el.add(cuff);
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(0.122, 0.016, 8, 20), silver);
+      rim.position.set(0, -0.215, 0); rim.rotation.x = Math.PI / 2;
+      el.add(rim);
+    });
+    /* váy xanh sao trắng quanh hông */
+    const hips = hero.joints.hips;
+    if (hips) {
+      const skirtM = std(0x2456c8, { side: THREE.DoubleSide, roughness: 0.7 });
+      const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.55, 0.42, 18, 1, true), skirtM);
+      skirt.position.set(0, -0.12, 0); skirt.castShadow = true;
+      hips.add(skirt);
+      const starM = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      for (let i = 0; i < 7; i++) {
+        const a = (i / 7) * Math.PI * 2;
+        const st = new THREE.Mesh(new THREE.SphereGeometry(0.028, 5, 4), starM);
+        st.position.set(Math.sin(a) * 0.47, -0.16, Math.cos(a) * 0.47);
+        st.scale.set(1, 1, 0.4);
+        hips.add(st);
+      }
+      /* thòng lọng vàng (Lasso of Truth) treo bên hông phải */
+      const lassoM = new THREE.MeshStandardMaterial({ color: 0xf5c542, emissive: 0x8a6410, emissiveIntensity: 0.35, metalness: 0.6, roughness: 0.35 });
+      const lasso = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.028, 10, 28), lassoM);
+      lasso.position.set(0.34, 0.02, 0.10); lasso.rotation.y = 0.5; lasso.castShadow = true;
+      hips.add(lasso);
+      hero.extras.lasso = lasso;
+      const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: hbGlowTex('#ffd94d'), color: 0xffd94d, transparent: true,
+        blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.45,
+      }));
+      glow.position.set(0.34, 0.02, 0.10); glow.scale.setScalar(0.65);
+      hips.add(glow);
+      hero.extras.lassoGlow = glow;
+    }
+    return;
+  }
   if (id !== 'gl') return;
   const hand = hero.joints.handR;
   const ringM = new THREE.MeshStandardMaterial({
@@ -5675,7 +5766,7 @@ function hbBuildHero(id) {
   hbPart(new THREE.SphereGeometry(0.105, 14, 10), mat.suit, -0.185, 0.93, -0.05, spine); /* traps */
   hbPart(new THREE.SphereGeometry(0.105, 14, 10), mat.suit, 0.185, 0.93, -0.05, spine);
 
-  const embW = id === 'superman' ? 0.50 : 0.42;
+  const embW = id === 'superman' ? 0.50 : (id === 'wonderwoman' ? 0.46 : 0.42);
   const embY = 0.60;
   const chestR = 0.250 + 0.045 * ((embY - 0.04) / 0.80);
   const emb = new THREE.Mesh(
@@ -6559,7 +6650,7 @@ function hbMakeBattler(id, hero) {
   return btl;
 }
 function hbSetSlot(btl) {
-  const a = btl.idx * 2.094 + 0.6 + Math.random() * 0.8;
+  const a = btl.idx * 1.571 + 0.6 + Math.random() * 0.8;
   const r = 8.5 + Math.random() * 4.5;
   btl.slot.set(
     HB.arena.x + Math.cos(a) * r,
@@ -6641,8 +6732,8 @@ function hbCheckRound() {
         `<span>Vòng mới bắt đầu sau vài giây…</span><em>Lượt thắng: ${
           HB.btls.map((b) => `${b.name} ${b.wins}`).join(' · ')}</em>`);
     } else {
-      hbLog('⚖️ <b>HÒA!</b> — cả ba cùng ngã xuống.', 'fx');
-      showCap('⚔️ <b>Hòa!</b><span>Cả ba anh hùng cùng ngã xuống — vòng mới sắp bắt đầu…</span>');
+      hbLog('⚖️ <b>HÒA!</b> — tất cả cùng ngã xuống.', 'fx');
+      showCap('⚔️ <b>Hòa!</b><span>Tất cả anh hùng cùng ngã xuống — vòng mới sắp bắt đầu…</span>');
     }
     HB.round++;
   }
@@ -6666,6 +6757,87 @@ function hbReviveAll() {
 }
 
 /* ---------- chiêu thức ---------- */
+/* Lasso of Truth: tia thòng lọng vàng siết mục tiêu */
+function hbSkillLasso(btl, phase, dt) {
+  const H = btl.hero, tgt = btl.target;
+  if (phase === 'windup') {
+    if (tgt) hbFaceToward(btl, hbAimPoint(tgt, _hbV), dt, 9);
+    hbPose(H, { shL: [-0.5, 0, -0.28], shR: [-2.85, 0, 0.28], head: [-1.62, 0, 0], hips: [0, 0, 0] }, dt, 10);
+    if (H.extras.lassoGlow) H.extras.lassoGlow.material.opacity = 0.45 + 0.5 * hbClamp(btl.t / 0.55, 0, 1);
+    if (btl.t >= 0.55) {
+      btl.state = 'cast'; btl.t = 0; btl.castN = 0;
+      hbSfx('whoosh');
+      const tgtAt = () => hbAimPoint(tgt, new THREE.Vector3());
+      const fromH = () => H.joints.handR.getWorldPosition(new THREE.Vector3());
+      hbBeam(fromH, tgtAt, '#ffd94d', 1.15, 1.15);
+      hbLog(`✨ <b>Wonder Woman</b> quăng <b>Lasso Sự Thật</b> trói ${tgt ? tgt.name : 'kẻ địch'}!`);
+    }
+  } else if (phase === 'cast') {
+    if (H.extras.lassoGlow) H.extras.lassoGlow.material.opacity = 0.45;
+    if (tgt && tgt.alive) {
+      hbFaceToward(btl, hbAimPoint(tgt, _hbV), dt, 10);
+      /* kéo mục tiêu lại gần + siết sát thương theo nhịp */
+      _hbV.copy(btl.root.position).sub(tgt.root.position);
+      const dd = _hbV.length();
+      if (dd > 4) tgt.vel.add(_hbV.normalize().multiplyScalar(dt * 22));
+      btl.castN += dt;
+      if (btl.castN >= 0.18) {
+        btl.castN = 0;
+        _hbV.copy(hbAimPoint(tgt, _hbV));
+        hbBoom(_hbV, { count: 8, color: ['#ffe98a', '#ffd94d', '#fff6d8'], speed: 5.5,
+          ring: false, flash: true, sfx: 'hit', shake: 0.16 });
+        hbHit(tgt, 4, btl, { from: btl.root.position, power: 1.4, sfx: null });
+      }
+    }
+    hbPose(H, { shL: [-0.5, 0, -0.28], shR: [-2.85, 0, 0.28], head: [-1.66, 0, 0] }, dt, 10);
+    if (btl.t >= 1.15) { btl.state = 'recover'; btl.t = 0; btl.coolA = 6; }
+  }
+}
+/* Vòng Tay Chấn Động: đập hai vòng tay tạo sóng xung kích + lao vào kết liễu */
+function hbSkillBracelet(btl, phase, dt) {
+  const H = btl.hero, tgt = btl.target;
+  if (phase === 'windup') {
+    if (tgt) hbFaceToward(btl, hbAimPoint(tgt, _hbV), dt, 9);
+    /* chắp hai vòng tay trước ngực nạp năng lượng */
+    hbPose(H, { shL: [-1.9, 0, -0.55], elL: [-0.9, 0, 0], shR: [-1.9, 0, 0.55], elR: [-0.9, 0, 0], head: [-1.55, 0, 0] }, dt, 10);
+    if (btl.t >= 0.5) {
+      btl.state = 'cast'; btl.t = 0; btl.castN = 0;
+      hbSfx('zap');
+      /* sóng xung kích vàng nổ ngay trước mặt, hất tung mục tiêu ở gần */
+      const c = hbAimPoint(btl, _hbV).clone();
+      c.add(_hbV2.set(Math.sin(btl.heading), 0.2, Math.cos(btl.heading)).multiplyScalar(1.6));
+      hbBoom(c, { color: ['#ffffff', '#ffe98a', '#ffd94d'], count: 44, speed: 12, shake: 0.9, sfx: 'boom', ringR: 5 });
+      hbRing(c, _upY, '#ffd94d', 0.5, 6.5, 0.65);
+      hbFlash(c, '#ffe98a', 2, 7, 0.35);
+      if (tgt && tgt.alive && btl.root.position.distanceTo(tgt.root.position) < 9) {
+        hbHit(tgt, 16, btl, { from: btl.root.position, power: 8, sfx: 'punch' });
+      }
+      hbLog(`💥 <b>Wonder Woman</b> đập <b>Vòng Tay Chấn Động</b> — sóng vàng nổ tung!`);
+    }
+  } else if (phase === 'cast') {
+    /* lao theo cú chém xoáy kết liễu */
+    if (tgt && tgt.alive && btl.castN < 1) {
+      const tp = hbAimPoint(tgt, _hbV);
+      hbFaceToward(btl, tp, dt, 4);
+      _hbV2.copy(tp).sub(btl.root.position);
+      const d = _hbV2.length();
+      btl.vel.copy(_hbV2.normalize().multiplyScalar(34));
+      hbPose(H, { shL: [-0.3, 0, -0.9], shR: [-3.0, 0, 0.7], head: [-1.42, 0, 0], spine: [-0.1, 0.5, 0] }, dt, 12);
+      if (Math.random() < 0.8) {
+        _hbC.set('#ffd94d');
+        hbSpawnP(btl.root.position.x, btl.root.position.y, btl.root.position.z,
+          hbRand(-2, 2), hbRand(-1, 1), hbRand(-2, 2), 0.4, _hbC.r, _hbC.g, _hbC.b, 0, 4);
+      }
+      if (d < 1.4) {
+        hbBoom(tp, { color: ['#ffffff', '#ffe98a', '#38bdf8'], count: 40, shake: 0.9, sfx: 'slam', ringR: 4.5 });
+        hbHit(tgt, 18, btl, { from: btl.root.position, power: 8, sfx: 'punch' });
+        btl.castN = 1;
+        btl.vel.multiplyScalar(-0.25);
+      }
+    }
+    if (btl.t >= 0.85 || btl.castN >= 1) { btl.state = 'recover'; btl.t = 0; btl.coolB = 8.5; btl.vel.multiplyScalar(0.4); }
+  }
+}
 /* mắt nhiệt luyện: beams mắt → mục tiêu */
 function hbSkillHeat(btl, phase, dt) {
   const H = btl.hero, tgt = btl.target;
@@ -7140,6 +7312,10 @@ const HB_SKILLS = {
     { id: 'ring', fn: hbSkillRing, range: 17, pre: 0, key: 'coolA' },
     { id: 'hammer', fn: hbSkillHammer, range: 16, pre: 0, key: 'coolB' },
   ],
+  wonderwoman: [
+    { id: 'lasso', fn: hbSkillLasso, range: 17, pre: 0, key: 'coolA' },
+    { id: 'bracelet', fn: hbSkillBracelet, range: 15, pre: 0, key: 'coolB' },
+  ],
 };
 function hbAINext(btl) {
   if (HB.roundEnding > 0) return null;
@@ -7150,7 +7326,7 @@ function hbAINext(btl) {
   return hbPick(skills);
 }
 function hbSetSlotBase(btl) {
-  const a = btl.idx * 2.094 + 0.6;
+  const a = btl.idx * 1.571 + 0.6;
   _hbV.set(HB.arena.x + Math.cos(a) * 10, HB_ARENA_Y + 1.5, HB.arena.z + Math.sin(a) * 10);
   btl.slot.copy(_hbV);
 }
@@ -7237,7 +7413,7 @@ function hbStartBattle() {
   hbUpdateHud();
   hbLog(`⚔️ <b>TRẬN CHIẾN BẮT ĐẦU!</b> ${arrivals.join(' · ')}`, 'fx');
   showCap('⚔️ <b>Trận chiến bắt đầu!</b>' +
-    '<span>Ba anh hùng đang bay đến sân đấu trên mặt hồ — ai sẽ là người chiến thắng?</span>');
+    '<span>Bốn anh hùng đang bay đến sân đấu trên mặt hồ — ai sẽ là người chiến thắng?</span>');
   hbSfx('whoosh');
 }
 function hbEndBattle() {
@@ -7292,10 +7468,12 @@ function hbInit() {
   hbInitBeams();
   const sup = hbBuildHero('superman');
   const gl = hbBuildHero('gl');
+  const ww = hbBuildHero('wonderwoman');
   HB.refH = new THREE.Box3().setFromObject(sup.base).getSize(new THREE.Vector3()).y || 2.4;
   hbMakeBattler('superman', sup).root.visible = false;
   hbMakeBattler('batman', null).root.visible = false;
   hbMakeBattler('gl', gl).root.visible = false;
+  hbMakeBattler('wonderwoman', ww).root.visible = false;
   hbLoadBatman().then((hero) => {
     const btl = HB.btls[1];
     if (hero) {
